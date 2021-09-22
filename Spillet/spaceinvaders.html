@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="shortcut icon" href="../bilder/favicon.ico">
+<style>
+#tegneflate
+{
+	border-style:solid;
+	background-color: black;
+	background-image: url("../bilder/backgrondpic2.jpg");
+}
+#knapp1
+{
+	visibility: hidden;
+}
+#tekst1Ut
+{
+	position: absolute;
+	top: 80px;
+	left: 800px;
+}
+#tekst2Ut
+{
+	position: absolute;
+	top: 100px;
+	left: 800px;
+}#tekst3Ut
+{
+	position: absolute;
+	top: 120px;
+	left: 800px;
+}#tekst4Ut
+{
+	position: absolute;
+	top: 140px;
+	left: 800px;
+}
+#bakgrunnen
+{
+	visibility: hidden;
+	width: 0px;
+	height: 0px;
+}
+body
+{
+	background-color: #00003f;
+}
+
+</style>
+<title></title>
+<script>
+//Programmert av Joakim J.
+//Tegninger av Hedda Weiby og Nina Winther
+window.onload = oppstartsfunksjon;
+//variabler
+{
+//spill variabler
+var pause = false;
+var canvas;
+var ctx;
+var dodeAliens = 0;
+var spillet;
+var gameover = false;
+var bakgroundbilde = "../bilder/backgrondpic2";
+var bakgrunnenX = 0;
+var bakgrunnenY = -300;
+var bakgrunnenX2 = 0;
+var bakgrunnenY2 = -1200;
+var bakgrunnfart = 5;
+//tank variabler
+var x = 300;
+var y = 550;
+var hoyre = false;
+var venstre = false;
+var skyt = false;
+var tankfart = 10;
+var skuddet = true;
+var bulletTeller = 0;
+var bulletx = x+25;
+var bullety = 500;
+var bulletspeed = 30;
+var tankSkyteLyd;
+//grønn Alien variabler
+var gronnAlienAlive = true;
+var gronnYpos = -200;
+var gronnXpos = Math.floor(Math.random()*550)+1;
+var gronnkonstantYpos = Math.floor(Math.random()*200)+1;
+var frem = false;
+var tilbake = false;
+var enemyfart = 6;
+var gronskudd = true;
+var gronantallskudd = 0;
+var gronbulletx = [,,];
+var gronbullety = [,,];
+var gronbulletfart = 10;
+var nyttskuddteller =0;
+var gronnYfart = 4;
+//bloAlien variabler
+var bloAlienAlive = true;
+var bloAlienfart = 8;
+var bloYpos = -200;
+var bloXpos = Math.floor(Math.random()*550)+1;
+var blokonstantYpos =  Math.floor(Math.random()*200)+1;
+var blobulletx = [,,];
+var blobullety = [,,];
+var bloskudd = true;
+var bloantallskudd = 0;
+var blobulletfart = 10;
+var blofrem = false;
+var blotilbake = false;
+var bloYfart = 4;
+}
+
+function oppstartsfunksjon()
+{
+	document.onkeydown = tastaturfunksjon;
+	document.onkeyup = tastaturfunksjon2;
+	spillet = setInterval("game()",20);
+	document.getElementById("knapp1").onclick = nyttspillfunksjon;
+	document.getElementById("knapp2").onclick = pausefunksjon;
+	audiofunksjon();
+	createImgFunksjon();
+}
+
+function createImgFunksjon()
+{
+var bakgrunnsbilde;
+
+	bakgrunnsbilde = document.createElement("img");
+	bakgrunnsbilde.src = "../bilder/backgrondpic2.jpg";
+	bakgrunnsbilde.id = "bakgrunnen";
+	document.getElementById("body").appendChild(bakgrunnsbilde);
+}
+
+function audiofunksjon()
+{
+	tankSkyteLyd = document.createElement("audio");
+	tankSkyteLyd.src = "../lyd/lasersound.mp3";
+	tankSkyteLyd.volume = 0.01;
+	document.getElementById("body").appendChild(tankSkyteLyd);
+	
+}
+
+function pausefunksjon()
+{
+	if(pause == false)
+	{
+		ctx.font ="50px Verdana";
+		ctx.fillStyle="blue";
+		ctx.fillText ("PAUSE",220,200);
+		clearInterval(spillet);
+		pause = true;
+	}
+	else
+	{
+		spillet = setInterval("game()",20);
+		pause = false;
+	}
+}
+
+function nyttspillfunksjon()
+{
+	gronnYpos = -200;
+	gronnXpos = Math.floor(Math.random()*550)+1;
+	gronnkonstantYpos = Math.floor(Math.random()*200)+1;
+	enemyfart = 2;
+	bloAlienfart = 8;
+	gronskudd = true;
+	enemybulletfart = 10;
+	dodeAliens = 0;
+	bloYpos = -200;
+	bloXpos = Math.floor(Math.random()*550)+1;
+	blokonstantYpos =  Math.floor(Math.random()*200)+1;
+	spillet = setInterval("game()",20);
+	document.getElementById("knapp1").style.visibility = "hidden";
+	document.getElementById("knapp2").style.visibility = "visible"
+	for(var i=0;i<1000;i++)
+	{
+		blobulletx[i] = -30;
+		blobullety[i] = "";
+		gronbulletx[i] = -30;
+		gronbullety[i] = "";
+	}
+	gameover = false;
+	gronantallskudd = 0;
+	bakgrunnenY = -300;
+	bakgrunnenY2 = -1200;
+}
+
+function tastaturfunksjon2(evt)
+{
+	if(evt.keyCode == 39)
+	{
+		hoyre = false;
+	}
+	if(evt.keyCode == 37)
+	{
+		venstre = false;
+	}
+	if(evt.keyCode == 32)
+	{
+		skyt = false;
+	}
+	
+}
+
+function tastaturfunksjon(evt)
+{
+	var tastnummer = 0;
+	
+
+	//lese av nummeret på tasten
+	tastnummer = evt.keyCode;	
+	
+	if(tastnummer == 39)
+	{
+		hoyre = true;
+	}
+	if(tastnummer == 37)
+	{
+		venstre = true;
+	}
+	if(gameover == true)
+	{
+		if(tastnummer == 32)
+		{
+			nyttspillfunksjon();
+			gameover = false;
+		}
+	}
+	else
+	{
+		if(tastnummer == 32)
+		{
+			skyt = true;
+			tankSkyteLyd.play();
+		}
+		if(skyt == true)
+		{
+			bulletTeller = 1;
+		}
+	}
+	if(gameover == false)
+	{
+		if(tastnummer == 27)
+		{
+			pausefunksjon();
+		}
+	}
+	
+}
+
+function GameOver()
+{
+	
+	document.getElementById("knapp1").style.visibility = "visible";
+	document.getElementById("knapp2").style.visibility = "hidden";
+	clearInterval(spillet);
+	gameover = true;
+	ctx.font ="50px Verdana";
+	ctx.fillStyle="red";
+    ctx.fillText ("GAME OVER",140,200);
+}
+
+function game()
+{
+	canvas = document.getElementById("tegneflate");
+	ctx = canvas.getContext("2d");
+	
+	ctx.clearRect(0,0,600,600);
+	
+	//generaler funksjoner
+	tegnefunksjon();
+	hit();
+	//tank funksjoner
+	tankmovement();
+	//grønn ALien funksjoenr
+	gronnmovement();
+	gronnbulletfunksjon();
+	//blo Alien funksjoner
+	blomovement();
+	blobulletfunksjon();
+	
+
+	document.getElementById("tekst1Ut").innerHTML = "bakgrunnenY: " + bakgrunnenY;
+	document.getElementById("tekst2Ut").innerHTML = "bakgrunnenY: " + bakgrunnenY2;
+	document.getElementById("tekst3Ut").innerHTML = "Tank X: " + x;
+	document.getElementById("tekst4Ut").innerHTML = "Tank Y: " + y;
+}
+
+function nyGronnAlienfunksjon()
+{
+	gronnYpos = -200;
+	gronnXpos = Math.floor(Math.random()*550)+1;
+	gronnkonstantYpos = Math.floor(Math.random()*200)+1;
+	
+
+	tilbake = false;
+	frem = false;
+	//gronbulletfart++;
+	
+}
+
+function nyBloAlienfunksjon()
+{
+	bloYpos = -200;
+	bloXpos = Math.floor(Math.random()*550)+1;
+	blokonstantYpos =  Math.floor(Math.random()*200)+1;
+	
+
+	blotilbake = false;
+	blofrem = false;
+}
+var gronnEksplosjonTeller = 0;
+var bloEksplosjonTeller = 0;
+function tegnefunksjon()
+{
+var bakgrunnen = document.getElementById("bakgrunnen");
+var bakgrunnen2 = document.getElementById("bakgrunnen");
+
+
+	ctx.drawImage(bakgrunnen,bakgrunnenX,bakgrunnenY,600,900)
+	ctx.drawImage(bakgrunnen2,bakgrunnenX2,bakgrunnenY2,600,900)
+	bakgrunnenY +=bakgrunnfart;
+	bakgrunnenY2 +=bakgrunnfart;
+	if(bakgrunnenY > 600)
+	{
+		bakgrunnenY = -1195;
+	}
+	if(bakgrunnenY2 > 600)
+	{
+		bakgrunnenY2 = -1195;
+	}
+	
+
+
+
+	
+	//Grønn alien
+	if(gronnAlienAlive == true)
+	{
+		gronnAlienImg = document.getElementById("gronnAlienship");
+		ctx.drawImage(gronnAlienImg,gronnXpos,gronnYpos,90,90)
+	}
+	else
+	{
+		if(gronnEksplosjonTeller < 10)
+		{
+			gronnEksplosjonTeller++;
+			eksplosjonImg = document.getElementById("eksplosjon");
+			ctx.drawImage(eksplosjonImg,gronnXpos,gronnYpos,90,90);
+		}
+		else
+		{
+			gronnAlienAlive = true;
+			gronnEksplosjonTeller = 0;
+			nyGronnAlienfunksjon();
+		}
+	}
+	//blå Alien
+	if(bloAlienAlive == true)
+	{
+		bloAlienImg = document.getElementById("bloAlienship");
+		ctx.drawImage(bloAlienImg,bloXpos,bloYpos,50,59)
+	}
+	else
+	{
+		if(bloEksplosjonTeller < 10)
+		{
+			bloEksplosjonTeller++;
+			eksplosjonImg = document.getElementById("eksplosjon");
+			ctx.drawImage(eksplosjonImg,bloXpos,bloYpos,50,59);
+		}
+		else
+		{
+			bloAlienAlive = true;
+			bloEksplosjonTeller = 0;
+			nyBloAlienfunksjon();
+		}
+	}
+	//tank
+	ctx.beginPath();
+	ctx.moveTo(x, y);
+	ctx.lineTo(x+25, y);
+	ctx.lineTo(x+25, y-10);
+	ctx.lineTo(x+35, y-10);
+	ctx.lineTo(x+35, y);
+	ctx.lineTo(x+60, y);
+	ctx.lineTo(x+60, y+20);
+	ctx.lineTo(x, y+20);
+	ctx.lineTo(x, y);
+	ctx.fillStyle = "blue";
+	ctx.strokeStyle = "white";
+	ctx.fill();
+	ctx.stroke();
+	//antall skudde aliens
+	ctx.beginPath();
+	ctx.font ="20px Verdana";
+	ctx.fillStyle="#088A08";
+    ctx.fillText ("Døde Aliens: " + dodeAliens,425,30);
+	ctx.fill()
+}
+
+function hit()
+{
+	//TankBullet rammer grønn Alien
+	if(bullety < (gronnYpos+40) && bullety > gronnYpos)
+	{
+		if(bulletx < (gronnXpos+95) && bulletx > (gronnXpos))
+		{
+			gronnAlienAlive = false;
+			enemyfart++;
+			dodeAliens++;
+			bulletTeller = 0;
+			bullety = 500;
+			skuddet = true;
+	
+		}   
+	}
+	//Tank bullet rammer blå alien
+	if(bullety < bloYpos+30 && bullety > bloYpos)
+	{
+		if(bulletx < bloXpos+55 && bulletx > bloXpos-10)
+		{
+			bloAlienAlive = false;
+			bloAlienfart++;
+			bulletTeller = 0;
+			bullety = 500;
+			skuddet = true;
+			bloAlienfart++;
+			dodeAliens++;
+		}
+	}
+	
+	
+	
+	//grønn Alien bullet rammer tank
+	//bullet kan hoppe over intervallet ved høy fart
+	for(var i=0;i<gronantallskudd;i++)
+	{
+		if(gronbulletx[i] > x-10 && gronbulletx[i] < x+50)
+		{
+			if(gronbullety[i]+30 > y-5 && gronbullety[i]+30 < y+40)
+			{
+				GameOver();
+			}
+		}
+	}
+	//blo alien bullet rammer tank
+	for(var i=0;i<bloantallskudd;i++)
+	{
+		if(blobulletx[i] > x-10 && blobulletx[i] < x+50)
+		{
+			if(blobullety[i]+30 > y-5 && blobullety[i]+30 < y+40)
+			{
+				GameOver();
+			}
+		}
+	}
+}
+
+function tankmovement()
+{
+	//tank bevegelse
+	if(hoyre == true)
+	{
+		if(x+60 < 600)
+		{
+			x+=tankfart;
+		}
+	}
+	if(venstre == true)
+	{
+		if(x > 0)
+		{
+			x-=tankfart;
+		}
+	}
+	//tank skyter
+	if(bulletTeller == 1)
+	{
+		if(skuddet == true)
+		{
+		bulletx = x+25;
+		skuddet = false;
+		}
+		tankbulletfunksjon();
+	}
+}
+
+function tankbulletfunksjon()
+{
+	ctx.beginPath();
+	ctx.rect(bulletx,bullety,10,30)
+	ctx.strokeStyle = "white" ;
+	ctx.lineWidth = 2;
+	ctx.fillStyle = "#FF0000";
+	ctx.fill();
+	ctx.stroke();
+
+	bullety-=bulletspeed;
+
+	if(bullety < -50)
+	{
+		bullety = 500;
+		bulletTeller = 0;
+		skuddet = true;		
+	}
+	
+}
+
+function gronnmovement()
+{
+	
+		if(gronnXpos < 300 && frem == false && tilbake == false)
+		{
+			frem = true;
+		}
+		if(gronnXpos >= 300  && frem == false && tilbake == false)
+		{
+			tilbake = true;
+		}
+		if(gronnXpos > 504 && frem == true && tilbake == false)
+		{
+			tilbake = true;
+			frem = false;
+		}
+		if(gronnXpos < 1 && tilbake == true && frem == false)
+		{
+			frem = true;
+			tilbake = false;
+		}
+		if(gronnAlienAlive == true)
+		{
+			if(frem == true)
+			{
+				gronnXpos +=enemyfart;
+			}
+			if(tilbake == true)
+			{
+				gronnXpos -=enemyfart;
+			}
+			if(gronnYpos < gronnkonstantYpos)
+			{
+				gronnYpos +=gronnYfart;
+			}
+		}
+}
+
+function gronnbulletfunksjon()
+{
+	
+	if(gronantallskudd > 1000)
+	{
+		for(var i=0; i<gronantallskudd;i++)
+		{
+			ctx.beginPath();
+			ctx.rect(gronbulletx[i],gronbullety[i],10,30)
+			ctx.strokeStyle = "white";
+			ctx.lineWidth = 2;
+			ctx.fillStyle = "green";
+			ctx.fill();
+			ctx.stroke();
+			
+			gronbullety[i] += gronbulletfart;
+		}
+		if(gronbullety[gronantallskudd-1] > 630)
+		{
+			for(var i=0; i<gronantallskudd;i++)
+			{
+				gronbullety[i] = null;
+			}
+			gronantallskudd = 0;
+			gronskudd = true;
+		}
+	}
+	else
+	{
+		if(gronskudd == true)
+		{
+			gronbulletx[gronantallskudd] = gronnXpos+25;
+			gronbullety[gronantallskudd] = gronnYpos+25;
+			gronskudd = false;
+			gronantallskudd++;
+			//tankSkyteLyd.play();
+			animationTeller = 0;
+		
+		
+			
+		}
+		for(var i=0; i<gronantallskudd;i++)//kanskje problem med hvordan gronantallskudd + først etter nytt skudd
+		{
+			ctx.beginPath();
+			ctx.rect(gronbulletx[i],gronbullety[i],10,30)
+			ctx.strokeStyle = "white";
+			ctx.lineWidth = 2;
+			ctx.fillStyle = "green";
+			ctx.fill();
+			ctx.stroke();
+				
+			gronbullety[i] += gronbulletfart;
+		}
+		if(gronbullety[gronantallskudd-1] > gronnYpos+375)
+		{
+			gronskudd = true;
+		}
+	}
+	animationTeller++;
+	
+
+	
+	
+	
+	
+}
+
+function blomovement()
+{
+	if(bloXpos < 300 && blofrem == false && blotilbake == false)
+	{
+		blofrem = true;
+	}
+	if(bloXpos >= 300  && blofrem == false && blotilbake == false)
+	{
+		blotilbake = true;
+	}
+	if(bloXpos > 549 && blofrem == true && blotilbake == false)
+	{
+		blotilbake = true;
+		blofrem = false;
+	}
+	if(bloXpos < 1 && blotilbake == true && blofrem == false)
+	{
+		blofrem = true;
+		blotilbake = false;
+	}
+	if(bloAlienAlive == true)
+	{
+		if(blofrem == true)
+		{
+			bloXpos +=bloAlienfart;
+		}
+		if(blotilbake == true)
+		{
+			bloXpos -=bloAlienfart;
+		}
+		if(blokonstantYpos > bloYpos)
+		{
+			bloYpos +=bloYfart;
+		}
+	}
+}
+
+function blobulletfunksjon()
+{
+
+	if(bloskudd == true)
+	{
+		blobulletx[bloantallskudd] = bloXpos+20;
+		blobullety[bloantallskudd] = bloYpos+20;
+		bloskudd = false;
+		bloantallskudd++;
+	}
+	
+	
+	for(var i=0;i<bloantallskudd;i++)
+	{
+		ctx.beginPath();
+		ctx.rect(blobulletx[i],blobullety[i],10,30)
+		ctx.strokeStyle = "white";
+		ctx.lineWidth = 2;
+		ctx.fillStyle = "yellow";
+		ctx.fill();
+		ctx.stroke();
+		
+		
+		
+			blobullety[i] += blobulletfart;
+		
+		if(bloantallskudd < 3)
+		{
+			if(blobullety[i] == bloYpos+70)
+			{
+				bloskudd = true;
+			}
+		}
+	}
+	if(blobullety[bloantallskudd-1] > 610)
+	{
+		
+		bloantallskudd = 0;
+		bloskudd = true;
+	}
+	
+
+
+}
+
+
+</script>
+</head>
+<body id="body">
+<header></header>
+<button type="button" id="knapp1">Start Spill</button>
+<button type="button" id="knapp2">Pause</button>
+<p id="tekst1Ut"></p>
+<p id="tekst2Ut"></p>
+<p id="tekst3Ut"></p>
+<p id="tekst4Ut"></p>
+<br>
+<img id="bloAlienship" src="../bilder/bloAlienship4.png">
+<img id="eksplosjon" src="../bilder/eksplosjon.png">
+
+
+<canvas id="tegneflate" width="600" height = "600"></canvas>
+<img id="gronnAlienship" src="../bilder/gronnAlienship.png">
+</body>
+</html>

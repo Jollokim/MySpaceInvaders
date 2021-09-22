@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+#tegneflate
+{
+	border-style:solid;
+	background-color: black;
+}
+
+
+</style>
+<title></title>
+<script>
+
+window.onload = oppstartsfunksjon;
+
+function oppstartsfunksjon()
+{
+	document.onkeydown = tastaturfunksjon;
+	document.onkeyup = tastaturfunksjon2;
+	spillet = setInterval("tegne()",20);
+	document.getElementById("knapp2").onclick = pausefunksjon;
+	
+
+}
+
+var spillet;
+
+var blofrem = false;
+var blotilbake = true;
+var bloAlienfart = 5;
+var bloXpos = 200;
+var bloYpos = 100;
+var x = 300;
+var y = 550;
+var blobulletx = [,,];
+var blobullety = [,,];
+var bloskudd = true;
+var bloantallskudd = 0;
+var blobulletfart = 10;
+var bulletfart = -20;
+var gameover = false;
+var skyt = false;
+var venstre;
+var hoyre;
+var pause = false;
+var tankfart = 10;
+function tegne()
+{
+	canvas = document.getElementById("tegneflate");
+	ctx = canvas.getContext("2d");
+	ctx.clearRect(0,0,600,600);
+	
+	
+	blomovement();
+	
+	//blå alien
+	ctx.beginPath();
+	ctx.rect(bloXpos,bloYpos,40,40);
+	ctx.lineWidth = 2;
+	ctx.fillStyle = "#00bfff";
+	ctx.fill();
+	ctx.beginPath();
+	ctx.rect(bloXpos+5,bloYpos+10,11,11);
+	ctx.fillStyle = "#ffff00";
+	ctx.fill();
+	ctx.beginPath();
+	ctx.rect(bloXpos+27,bloYpos+10,7,7);
+	ctx.fillStyle = "#b30000";
+	ctx.fill();
+	ctx.beginPath();
+	ctx.rect(bloXpos+5,bloYpos+25,30,10);
+	ctx.fillStyle = "#0066cc";
+	ctx.fill();
+	
+	ctx.beginPath();
+	ctx.moveTo(x, y);
+	ctx.lineTo(x+25, y);
+	ctx.lineTo(x+25, y-10);
+	ctx.lineTo(x+35, y-10);
+	ctx.lineTo(x+35, y);
+	ctx.lineTo(x+60, y);
+	ctx.lineTo(x+60, y+20);
+	ctx.lineTo(x, y+20);
+	ctx.lineTo(x, y);
+	ctx.fillStyle = "blue";
+	ctx.strokeStyle = "white";
+	ctx.fill();
+	ctx.stroke();
+	
+	if(skyt == true)
+	{	
+		bulletx[antallbullet] = x+25;
+		bullety[antallbullet] = y-30;			
+		antallbullet++;
+	}
+		
+	blobulletfunksjon();
+	bloskuddfunksjon();
+	hit();
+	
+	console.log("Antall skudd: " + bloantallskudd + " Ypos: " + blobulletx[3] );
+}
+var antallbullet = 0;
+var bulletx = [];
+var bullety = [];
+var skuddet = false;
+function blobulletfunksjon()
+{
+	for(var i=0;i<antallbullet;i++)
+	{
+		ctx.beginPath();
+		ctx.rect(bulletx[i],bullety[i],10,30)
+		ctx.strokeStyle = "white";
+		ctx.lineWidth = 2;
+		ctx.fillStyle = "red";
+		ctx.fill();
+		ctx.stroke();
+		
+		bullety[i] +=bulletfart;
+	}
+}
+function blomovement()
+{
+	//bloAlien movement
+	if(bloXpos < 300 && blofrem == false && blotilbake == false)
+	{
+		blofrem = true;
+	}
+	if(bloXpos >= 300  && blofrem == false && blotilbake == false)
+	{
+		blotilbake = true;
+	}
+	if(bloXpos > 549 && blofrem == true && blotilbake == false)
+	{
+		blotilbake = true;
+		blofrem = false;
+	}
+	if(bloXpos < 1 && blotilbake == true && blofrem == false)
+	{
+		blofrem = true;
+		blotilbake = false;
+	}
+	if(blofrem == true)
+	{
+		bloXpos +=bloAlienfart;
+	}
+	if(blotilbake == true)
+	{
+		bloXpos -=bloAlienfart;
+	}
+	
+	//Tank movement
+	if(hoyre == true)
+	{
+		if(x+60 < 600)
+		{
+			x+=tankfart;
+		}
+	}
+	if(venstre == true)
+	{
+		if(x > 0)
+		{
+			x-=tankfart;
+		}
+	}
+	
+	
+
+	
+}
+
+function bloskuddfunksjon()
+{
+	if(bloskudd == true)
+	{
+		blobulletx[bloantallskudd] = bloXpos;
+		blobullety[bloantallskudd] = bloYpos;
+		bloskudd = false;
+		bloantallskudd++;
+	}
+	
+	
+	for(var i=0;i<bloantallskudd;i++)
+	{
+		ctx.beginPath();
+		ctx.rect(blobulletx[i],blobullety[i],10,30)
+		ctx.strokeStyle = "white";
+		ctx.lineWidth = 2;
+		ctx.fillStyle = "yellow";
+		ctx.fill();
+		ctx.stroke();
+		
+		
+		
+			blobullety[i] += blobulletfart;
+		
+		if(bloantallskudd < 5)
+		{
+			if(blobullety[i] == bloYpos+50)
+			{
+				bloskudd = true;
+			}
+		}
+	}
+	if(blobullety[bloantallskudd-1] > 610)
+	{
+		
+		bloantallskudd = 0;
+		bloskudd = true;
+	}
+}
+
+function hit()
+{
+	for(var i=0;i<bloantallskudd;i++)
+	{
+		if(blobulletx[i] > x-10 && blobulletx[i] < x+50)
+		{
+			if(blobullety[i]+30 > y+10 && blobullety[i]+30 < y+30)
+			{
+				GameOver();
+			}
+		}
+	}
+}
+
+function GameOver()
+{
+	ctx.font ="50px Verdana";
+	ctx.fillStyle="red";
+    ctx.fillText ("GAME OVER",140,200);
+	document.getElementById("knapp1").style.visibility = "visible";
+	document.getElementById("knapp2").style.visibility = "hidden";
+	clearInterval(spillet);
+	gameover = true;
+}
+
+function pausefunksjon()
+{
+	if(pause == false)
+	{
+		ctx.font ="50px Verdana";
+		ctx.fillStyle="blue";
+		ctx.fillText ("PAUSE",180,200);
+		clearInterval(spillet);
+		pause = true;
+	}
+	else
+	{
+		spillet = setInterval("game()",20);
+		pause = false;
+	}
+}
+function tastaturfunksjon2(evt)
+{
+	if(evt.keyCode == 39)
+	{
+		hoyre = false;
+	}
+	if(evt.keyCode == 37)
+	{
+		venstre = false;
+	}
+	if(evt.keyCode == 32)
+	{
+		skyt = false;
+	}
+	
+}
+
+function tastaturfunksjon(evt)
+{
+	var tastnummer = 0;
+	
+
+	//lese av nummeret på tasten
+	tastnummer = evt.keyCode;	
+	
+	if(tastnummer == 39)
+	{
+		hoyre = true;
+	}
+	if(tastnummer == 37)
+	{
+		venstre = true;
+	}
+	if(tastnummer == 32)
+	{
+		skyt = true;
+	}
+	
+	
+
+	
+}
+
+
+</script>
+</head>
+<body>
+<button type="button" id="knapp1">Start Spill</button>
+<button type="button" id="knapp2">Pause</button>
+<br>
+<canvas id = "tegneflate" width="600px" height="600px"/>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+#tegneflate
+{
+	border-style:solid;
+	background-image: url("bilder/backgrondpic2.jpg");
+	
+}
+img
+{
+	
+}
+
+</style>
+<title></title>
+<script>
+
+window.onload = oppstartsfunksjon;
+
+function oppstartsfunksjon()
+{
+	spillet = setInterval("tegne()",20);
+}
+
+var spillet;
+
+
+var xpos = 300;
+var ypos= 300;
+var xpos2 = 200;
+var ypos2 = 200;
+var xpos3 = 200;
+var ypos3 = 300;
+function tegne()
+{
+	canvas = document.getElementById("tegneflate");
+	ctx = canvas.getContext("2d");
+	ctx.clearRect(0,0,600,500);
+	
+	//blå alien
+	ctx.beginPath();
+	ctx.rect(xpos2,ypos2,40,40);
+	ctx.lineWidth = 2;
+	ctx.fillStyle = "#00bfff";
+	ctx.fill();
+	ctx.beginPath();
+	ctx.rect(xpos2+5,ypos2+10,11,11);
+	ctx.fillStyle = "#ffff00";
+	ctx.fill();
+	ctx.beginPath();
+	ctx.rect(xpos2+27,ypos2+10,7,7);
+	ctx.fillStyle = "#b30000";
+	ctx.fill();
+	ctx.beginPath();
+	ctx.rect(xpos2+5,ypos2+25,30,10);
+	ctx.fillStyle = "#0066cc";
+	ctx.fill();
+	
+	//grønn alien
+	ctx.beginPath();
+	ctx.rect(xpos,ypos,50,50);
+	ctx.lineWidth = 2;
+	ctx.fillStyle = "#00ff00";
+	ctx.fill();
+	ctx.beginPath();
+	ctx.rect(xpos+10,ypos+10,10,10);
+	ctx.fillStyle = "#b30000";
+	ctx.fill();
+	ctx.beginPath();
+	ctx.rect(xpos+30,ypos+10,10,10);
+	ctx.fillStyle = "#b30000";
+	ctx.fill();
+	ctx.beginPath();
+	ctx.rect(xpos+10,ypos+30,30,10);
+	ctx.fillStyle = "#088A08";
+	ctx.fill();
+	
+	//Rød alien
+	ctx.beginPath();
+	ctx.rect(xpos3,ypos3,25,25)
+	ctx.fillStyle = "#cc0000";
+	ctx.fill();
+	ctx.beginPath();
+	ctx.rect(xpos3+5,ypos3+5,5,5);
+	ctx.fillStyle = "#ffff1a";
+	ctx.fill();
+	ctx.beginPath();
+	ctx.rect(xpos3+15,ypos3+5,5,5);
+	ctx.fillStyle = "#ffff1a";
+	ctx.fill();
+	ctx.beginPath();
+	ctx.rect(xpos3+3,ypos3+13,19,10);
+	ctx.fillStyle = "#800000";
+	ctx.fill();
+	ctx.beginPath()
+	ctx.moveTo(xpos3+5,ypos3+20);
+	ctx.lineTo(xpos3+25,ypos3);
+	
+	bloA = document.getElementById("alien");
+	
+	ctx.drawImage(bloA,400,200,50,59);
+}
+
+
+
+</script>
+</head>
+<body>
+<button type="button" id="knapp1">Start Spill</button>
+<button type="button" id="knapp2">Start på ny</button>
+
+<canvas id = "tegneflate" width="600px" height="500px"/>
+<img id="alien" src="bilder/bloAlienship4(Anima).png"/>
+<img id="alien2" src="bilder/bloAlienship4(Anima).png"/>
+</body>
+</html>
